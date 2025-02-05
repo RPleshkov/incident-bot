@@ -2,6 +2,7 @@ import asyncio
 from logging.config import fileConfig
 from config.config import load_config
 from database import Base
+from database import User, Incident # noqa
 from sqlalchemy import pool
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
@@ -22,10 +23,7 @@ if config.config_file_name is not None:
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
 target_metadata = Base.metadata
-config.set_main_option(
-    'sqlalchemy.url',
-    load_config().db_url
-)
+config.set_main_option("sqlalchemy.url", load_config().db_url)
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
 # my_important_option = config.get_main_option("my_important_option")

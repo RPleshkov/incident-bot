@@ -7,4 +7,6 @@ class FSMFillIncident(StatesGroup):
     inc_number = State()
     description = State()
     resolution = State()
+    restart_platform = State()
     confirmation = State()
+    

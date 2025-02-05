@@ -10,9 +10,15 @@ def add_incident() -> InlineKeyboardMarkup:
 
 def confirm_or_refill() -> InlineKeyboardMarkup:
     button1 = InlineKeyboardButton(
-        text="Подтвердить 🗹", callback_data="confirm_pressed"
+        text="Подтвердить ✅", callback_data="confirm_pressed"
     )
     button2 = InlineKeyboardButton(
-        text="Заполнить заново 🗷", callback_data="refil_pressed"
+        text="Заполнить заново ❌", callback_data="refil_pressed"
     )
     return InlineKeyboardMarkup(inline_keyboard=[[button1], [button2]])
+
+
+def restart_platform_kb() -> InlineKeyboardMarkup:
+    button1 = InlineKeyboardButton(text="Да ✅", callback_data="restart_yes")
+    button2 = InlineKeyboardButton(text="Нет ❌", callback_data="restart_no")
+    return InlineKeyboardMarkup(inline_keyboard=[[button1, button2]])

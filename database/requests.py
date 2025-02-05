@@ -29,7 +29,14 @@ async def upsert_user(
 
 
 async def set_incident(
-    session, time, hosp_name, inc_number, description, resolution, creator
+    session,
+    time,
+    hosp_name,
+    inc_number,
+    description,
+    resolution,
+    restart_platform,
+    creator,
 ):
     session.add(
         Incident(
@@ -38,7 +45,9 @@ async def set_incident(
             inc_number=inc_number,
             description=description,
             resolution=resolution,
+            restart_platform=restart_platform,
             creator=creator,
         )
     )
+
     await session.commit()

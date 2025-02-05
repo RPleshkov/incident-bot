@@ -22,8 +22,6 @@ async def main():
     config: Config = load_config()
 
     engine = create_async_engine(config.db_url)
-    
-    
 
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
