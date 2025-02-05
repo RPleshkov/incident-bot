@@ -1,19 +1,20 @@
-import asyncio
-from email import message
+import logging
+import datetime
 from aiogram import Router, F
 from aiogram.filters import Command, CommandStart, StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import default_state
 from aiogram.types import CallbackQuery, Message
 from sqlalchemy.ext.asyncio import AsyncSession
-from filters.filters import HospNameFilter
+from filters.filters import DateTimeFilter, HospNameFilter
 from keyboards.keyboards import *
 from fsm.states import FSMFillIncident
 from lexicon.lexicon import lexicon
-from utils.utils import confirm_form, str_to_datetime
+from utils.utils import confirm_form
 from database import requests as rq
 
 router = Router(name="user_handlers_router")
+logger = logging.getLogger(__name__)
 
 
 @router.message(CommandStart(), StateFilter(default_state))
@@ -43,10 +44,10 @@ async def start_add_incident(callback: CallbackQuery, state: FSMContext):
 
 @router.message(
     StateFilter(FSMFillIncident.time),
-    F.text.regexp(r"\d{2}\.\d{2}\.\d{4} \d{2}:\d{2}:\d{2}"),
+    DateTimeFilter(),
 )
-async def time_handler_correct(message: Message, state: FSMContext):
-    await state.update_data(time=message.text)
+async def time_handler_correct(message: Message, state: FSMContext, time):
+    await state.update_data(time=time)
     await message.answer(text=lexicon["hosp_name"])
     await state.set_state(FSMFillIncident.hosp_name)
 
@@ -135,7 +136,7 @@ async def confirm_btn_process(
     data = await state.get_data()
     await rq.set_incident(
         session=session,
-        time=str_to_datetime(data["time"]),
+        time=eval(data["time"]),
         hosp_name=data["hosp_name"],
         inc_number=data["inc_number"],
         description=data["description"],

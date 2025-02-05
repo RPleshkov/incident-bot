@@ -1,9 +1,11 @@
-from datetime import datetime
 import json
+import logging
 
 from aiogram.filters import BaseFilter
 from aiogram.types import Message
-import re
+from dateutil.parser import parse
+
+logger = logging.getLogger(__name__)
 
 
 class HospNameFilter(BaseFilter):
@@ -18,3 +20,10 @@ class HospNameFilter(BaseFilter):
                 return None
 
 
+class DateTimeFilter(BaseFilter):
+
+    async def __call__(self, message: Message) -> dict | None:
+        try:
+            return {"time": repr(parse(message.text, dayfirst=True))}
+        except:
+            return None
