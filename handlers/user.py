@@ -69,21 +69,50 @@ async def hosp_name_handler_incorrect(message: Message):
     await message.answer(text=lexicon["hosp_name_incorrect"])
 
 
-@router.message(StateFilter(FSMFillIncident.inc_number), F.text.regexp(r"INC\d{6}"))
+@router.message(StateFilter(FSMFillIncident.inc_number), F.text)
 async def inc_number_handler_correct(message: Message, state: FSMContext):
     await state.update_data(inc_number=message.text)
+    await message.answer(text=lexicon["sti_res"], reply_markup=sti_res_kb())
+    await state.set_state(FSMFillIncident.sti_res)
+
+
+# @router.message(StateFilter(FSMFillIncident.inc_number))
+# async def inc_number_handler_incorrect(message: Message):
+#     await message.answer(text=lexicon["inc_number_incorrect"])
+
+
+@router.callback_query(
+    StateFilter(FSMFillIncident.sti_res),
+    F.data == "sti_yes",
+)
+async def sti_res_handler_yes(callback: CallbackQuery, state: FSMContext):
+    await callback.answer()
+
+    await state.update_data(sti_res=True)
+    await callback.message.answer(text=lexicon["inc_child_number"])
+    await state.set_state(FSMFillIncident.inc_child_number)
+
+
+@router.message(StateFilter(FSMFillIncident.inc_child_number), F.text)
+async def inc_child_number_handler_correct(message: Message, state: FSMContext):
+    await state.update_data(inc_child_number=message.text)
     await message.answer(text=lexicon["description"])
     await state.set_state(FSMFillIncident.description)
 
 
-@router.message(StateFilter(FSMFillIncident.inc_number))
-async def inc_number_handler_incorrect(message: Message):
-    await message.answer(text=lexicon["inc_number_incorrect"])
+@router.callback_query(
+    StateFilter(FSMFillIncident.sti_res),
+    F.data == "sti_no",
+)
+async def sti_res_handler_no(callback: CallbackQuery, state: FSMContext):
+    await callback.answer()
+    await state.update_data(sti_res=False, inc_child_number=None)
+    await callback.message.answer(text=lexicon["description"])
+    await state.set_state(FSMFillIncident.description)
 
 
 @router.message(StateFilter(FSMFillIncident.description), F.text)
 async def description_handler(message: Message, state: FSMContext):
-    print(message)
     await state.update_data(description=message.text)
     await message.answer(text=lexicon["resolution"])
     await state.set_state(FSMFillIncident.resolution)
@@ -93,24 +122,6 @@ async def description_handler(message: Message, state: FSMContext):
 async def resolution_handler(message: Message, state: FSMContext):
     await state.update_data(resolution=message.text)
     await message.answer(
-        text=lexicon["restart_platform"], reply_markup=restart_platform_kb()
-    )
-    await state.set_state(FSMFillIncident.restart_platform)
-
-
-@router.callback_query(
-    StateFilter(FSMFillIncident.restart_platform),
-    F.data.in_(["restart_yes", "restart_no"]),
-)
-async def restart_platform_handler(callback: CallbackQuery, state: FSMContext):
-    await callback.answer()
-    if callback.data == "restart_yes":
-        res = True
-    if callback.data == "restart_no":
-        res = False
-
-    await state.update_data(restart_platform=res)
-    await callback.message.answer(
         text=confirm_form(await state.get_data()), reply_markup=confirm_or_refill()
     )
     await state.set_state(FSMFillIncident.confirmation)
@@ -139,9 +150,10 @@ async def confirm_btn_process(
         time=eval(data["time"]),
         hosp_name=data["hosp_name"],
         inc_number=data["inc_number"],
+        inc_child_number=data["inc_child_number"],
         description=data["description"],
         resolution=data["resolution"],
-        restart_platform=data["restart_platform"],
+        sti_res=data["sti_res"],
         creator=callback.from_user.id,
     )
     await callback.message.answer(text=lexicon["confirm_pressed"])

@@ -1,11 +1,12 @@
 import asyncio
 from logging.config import fileConfig
-from config.config import load_config
-from database import Base
-from database import User, Incident # noqa
+
 from sqlalchemy import pool
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
+from database import Base
+from database import Incident, User  # noqa
+from config.config import load_config
 
 from alembic import context
 

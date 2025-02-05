@@ -18,7 +18,7 @@ def confirm_or_refill() -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(inline_keyboard=[[button1], [button2]])
 
 
-def restart_platform_kb() -> InlineKeyboardMarkup:
-    button1 = InlineKeyboardButton(text="Да ✅", callback_data="restart_yes")
-    button2 = InlineKeyboardButton(text="Нет ❌", callback_data="restart_no")
+def sti_res_kb() -> InlineKeyboardMarkup:
+    button1 = InlineKeyboardButton(text="Да ✅", callback_data="sti_yes")
+    button2 = InlineKeyboardButton(text="Нет ❌", callback_data="sti_no")
     return InlineKeyboardMarkup(inline_keyboard=[[button1, button2]])

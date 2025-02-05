@@ -33,9 +33,10 @@ async def set_incident(
     time,
     hosp_name,
     inc_number,
+    inc_child_number,
     description,
     resolution,
-    restart_platform,
+    sti_res,
     creator,
 ):
     session.add(
@@ -44,8 +45,9 @@ async def set_incident(
             hosp_name=hosp_name,
             inc_number=inc_number,
             description=description,
+            inc_child_number=inc_child_number,
             resolution=resolution,
-            restart_platform=restart_platform,
+            sti_res=sti_res,
             creator=creator,
         )
     )
