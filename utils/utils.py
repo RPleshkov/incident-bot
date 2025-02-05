@@ -24,6 +24,3 @@ def confirm_form(data: dict):
 
 def str_to_datetime(date_string: str) -> datetime:
     return datetime.strptime(date_string.strip(), "%d.%m.%Y %H:%M:%S")
-
-
-

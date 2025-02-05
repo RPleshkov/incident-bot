@@ -34,7 +34,7 @@ async def cmd_cancel_process(message: Message, state: FSMContext):
     await state.clear()
 
 
-@router.callback_query(F.data == "add_incident")
+@router.callback_query(StateFilter(default_state), F.data == "add_incident")
 async def start_add_incident(callback: CallbackQuery, state: FSMContext):
     await callback.answer()
     await callback.message.answer(text=lexicon["add_incident"])
@@ -51,7 +51,7 @@ async def time_handler_correct(message: Message, state: FSMContext):
     await state.set_state(FSMFillIncident.hosp_name)
 
 
-@router.message(StateFilter(FSMFillIncident.time), F.text)
+@router.message(StateFilter(FSMFillIncident.time))
 async def time_handler_incorrect(message: Message):
     await message.answer(text=lexicon["incorrect_time"])
 

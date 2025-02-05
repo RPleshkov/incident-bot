@@ -8,7 +8,6 @@ from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from aiogram.fsm.storage.redis import RedisStorage
 from redis.asyncio import Redis
 from config.config import Config, load_config
-from database.models import Base
 from handlers import user
 from middlewares.session import DbSessionMiddleware
 
@@ -22,9 +21,6 @@ async def main():
     config: Config = load_config()
 
     engine = create_async_engine(config.db_url)
-
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
 
     bot = Bot(
         config.tg_bot.token, default=DefaultBotProperties(parse_mode=ParseMode.HTML)
