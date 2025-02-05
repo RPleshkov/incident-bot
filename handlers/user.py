@@ -65,7 +65,7 @@ async def hosp_name_handler_correct(message: Message, state: FSMContext, hosp_na
 
 @router.message(StateFilter(FSMFillIncident.hosp_name))
 async def hosp_name_handler_incorrect(message: Message):
-    await message.answer(text=lexicon["inc_number"])
+    await message.answer(text=lexicon["hosp_name_incorrect"])
 
 
 @router.message(StateFilter(FSMFillIncident.inc_number), F.text.regexp(r"INC\d{6}"))
