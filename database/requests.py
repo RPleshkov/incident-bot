@@ -1,3 +1,4 @@
+from sqlalchemy import between, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from database.models import Incident, User
 from sqlalchemy.dialects.postgresql import insert as upsert
@@ -53,3 +54,23 @@ async def set_incident(
     )
 
     await session.commit()
+
+
+async def get_incedents(session, first_date_excel, last_date_excel):
+
+    stmt = (
+        select(
+            Incident.time,
+            Incident.hosp_name,
+            Incident.inc_number,
+            Incident.inc_child_number,
+            Incident.description,
+            Incident.resolution,
+            Incident.sti_res,
+        )
+        .where(between(Incident.time, first_date_excel, last_date_excel))
+        .order_by(Incident.time)
+    )
+
+    result = await session.execute(stmt)
+    return result

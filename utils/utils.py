@@ -20,3 +20,12 @@ def confirm_form(data: dict):
     )
 
     return form
+
+
+def get_output_filename(
+    first_date,
+    last_date,
+) -> str:
+    first_date = datetime.datetime.strftime(eval(first_date), "%d.%m")
+    last_date = datetime.datetime.strftime(eval(last_date), "%d.%m.%Y")
+    return f"Массовые инциденты {first_date}-{last_date}.xlsx"

@@ -16,7 +16,7 @@ from database import requests as rq
 router = Router(name="user_handlers_router")
 logger = logging.getLogger(__name__)
 
-admin_ids: list[int] = [402493310, 587678773]
+
 
 
 @router.message(CommandStart(), StateFilter(default_state))
@@ -37,13 +37,13 @@ async def cmd_cancel_process(message: Message, state: FSMContext):
     await state.clear()
 
 
-@router.message(Command("admin"), ~StateFilter(FSMFillIncident), IsAdmin(admin_ids))
+@router.message(Command("admin"), ~StateFilter(FSMFillIncident), IsAdmin())
 async def cmd_admin_process_correct(message: Message, state: FSMContext):
     await message.answer(text=lexicon["admin_correct"], reply_markup=admin_menu())
     await state.set_state(FSMAdmin.admin_mode)
 
 
-@router.message(Command("admin"), IsAdmin(admin_ids))
+@router.message(Command("admin"), IsAdmin())
 async def cmd_admin_process_incorrect(message: Message, state: FSMContext):
     await message.answer(text=lexicon["admin_incorrect"])
 

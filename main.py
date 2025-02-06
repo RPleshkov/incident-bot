@@ -36,7 +36,7 @@ async def main():
     dp.include_router(admin.router)
     dp.include_router(user.router)
 
-    await dp.start_polling(bot)
+    await dp.start_polling(bot, admin_ids=config.admin_ids)
 
 
 if __name__ == "__main__":
