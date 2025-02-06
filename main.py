@@ -9,6 +9,7 @@ from aiogram.fsm.storage.redis import RedisStorage
 from redis.asyncio import Redis
 from config.config import Config, load_config
 from handlers import user, admin
+from keyboards.set_menu import set_admin_menu, set_user_menu
 from middlewares.session import DbSessionMiddleware
 
 logger = logging.getLogger(__name__)
@@ -29,6 +30,10 @@ async def main():
     storage = RedisStorage(redis=redis)
 
     dp = Dispatcher(storage=storage)
+    dp.workflow_data.update(admin_ids=config.admin_ids)
+
+    await set_user_menu(bot)
+    await set_admin_menu(dp.workflow_data.get("admin_ids"), bot)
 
     Sessionmaker = async_sessionmaker(engine, expire_on_commit=False)
     dp.update.outer_middleware(DbSessionMiddleware(Sessionmaker))
@@ -36,7 +41,7 @@ async def main():
     dp.include_router(admin.router)
     dp.include_router(user.router)
 
-    await dp.start_polling(bot, admin_ids=config.admin_ids)
+    await dp.start_polling(bot)
 
 
 if __name__ == "__main__":
