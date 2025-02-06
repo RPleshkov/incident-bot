@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from aiogram.fsm.storage.redis import RedisStorage
 from redis.asyncio import Redis
 from config.config import Config, load_config
-from handlers import user
+from handlers import user, admin
 from middlewares.session import DbSessionMiddleware
 
 logger = logging.getLogger(__name__)
@@ -33,6 +33,7 @@ async def main():
     Sessionmaker = async_sessionmaker(engine, expire_on_commit=False)
     dp.update.outer_middleware(DbSessionMiddleware(Sessionmaker))
 
+    dp.include_router(admin.router)
     dp.include_router(user.router)
 
     await dp.start_polling(bot)

@@ -10,4 +10,10 @@ class FSMFillIncident(StatesGroup):
     description = State()
     resolution = State()
     confirmation = State()
-    
+
+
+class FSMAdmin(StatesGroup):
+    admin_mode = State()
+
+    first_date_excel = State()
+    last_date_excel = State()

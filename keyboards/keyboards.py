@@ -22,3 +22,9 @@ def sti_res_kb() -> InlineKeyboardMarkup:
     button1 = InlineKeyboardButton(text="Да ✅", callback_data="sti_yes")
     button2 = InlineKeyboardButton(text="Нет ❌", callback_data="sti_no")
     return InlineKeyboardMarkup(inline_keyboard=[[button1, button2]])
+
+
+def admin_menu() -> InlineKeyboardMarkup:
+    button1 = InlineKeyboardButton(text="Выгрузить Excel", callback_data="get_excel")
+    button2 = InlineKeyboardButton(text="Выйти", callback_data="quit")
+    return InlineKeyboardMarkup(inline_keyboard=[[button1], [button2]])

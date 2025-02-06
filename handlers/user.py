@@ -6,15 +6,17 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import default_state
 from aiogram.types import CallbackQuery, Message
 from sqlalchemy.ext.asyncio import AsyncSession
-from filters.filters import DateTimeFilter, HospNameFilter
+from filters.filters import DateTimeFilter, HospNameFilter, IsAdmin
 from keyboards.keyboards import *
-from fsm.states import FSMFillIncident
+from fsm.states import FSMAdmin, FSMFillIncident
 from lexicon.lexicon import lexicon
 from utils.utils import confirm_form
 from database import requests as rq
 
 router = Router(name="user_handlers_router")
 logger = logging.getLogger(__name__)
+
+admin_ids: list[int] = [402493310, 587678773]
 
 
 @router.message(CommandStart(), StateFilter(default_state))
@@ -33,6 +35,17 @@ async def cmd_cancel_process(message: Message, state: FSMContext):
     await message.answer(text=lexicon["/cancel"])
     await message.answer(text=lexicon["new"], reply_markup=add_incident())
     await state.clear()
+
+
+@router.message(Command("admin"), ~StateFilter(FSMFillIncident), IsAdmin(admin_ids))
+async def cmd_admin_process_correct(message: Message, state: FSMContext):
+    await message.answer(text=lexicon["admin_correct"], reply_markup=admin_menu())
+    await state.set_state(FSMAdmin.admin_mode)
+
+
+@router.message(Command("admin"), IsAdmin(admin_ids))
+async def cmd_admin_process_incorrect(message: Message, state: FSMContext):
+    await message.answer(text=lexicon["admin_incorrect"])
 
 
 @router.callback_query(StateFilter(default_state), F.data == "add_incident")
