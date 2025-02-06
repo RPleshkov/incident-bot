@@ -69,16 +69,19 @@ async def hosp_name_handler_incorrect(message: Message):
     await message.answer(text=lexicon["hosp_name_incorrect"])
 
 
-@router.message(StateFilter(FSMFillIncident.inc_number), F.text)
+@router.message(
+    StateFilter(FSMFillIncident.inc_number),
+    F.text.regexp(r"INC\d{6}") | F.text.regexp(r"REQ\d{6}"),
+)
 async def inc_number_handler_correct(message: Message, state: FSMContext):
     await state.update_data(inc_number=message.text)
     await message.answer(text=lexicon["sti_res"], reply_markup=sti_res_kb())
     await state.set_state(FSMFillIncident.sti_res)
 
 
-# @router.message(StateFilter(FSMFillIncident.inc_number))
-# async def inc_number_handler_incorrect(message: Message):
-#     await message.answer(text=lexicon["inc_number_incorrect"])
+@router.message(StateFilter(FSMFillIncident.inc_number))
+async def inc_number_handler_incorrect(message: Message):
+    await message.answer(text=lexicon["inc_number_incorrect"])
 
 
 @router.callback_query(
@@ -93,11 +96,19 @@ async def sti_res_handler_yes(callback: CallbackQuery, state: FSMContext):
     await state.set_state(FSMFillIncident.inc_child_number)
 
 
-@router.message(StateFilter(FSMFillIncident.inc_child_number), F.text)
+@router.message(
+    StateFilter(FSMFillIncident.inc_child_number),
+    F.text.regexp(r"INC\d{6}") | F.text.regexp(r"REQ\d{6}"),
+)
 async def inc_child_number_handler_correct(message: Message, state: FSMContext):
     await state.update_data(inc_child_number=message.text)
     await message.answer(text=lexicon["description"])
     await state.set_state(FSMFillIncident.description)
+
+
+@router.message(StateFilter(FSMFillIncident.inc_child_number))
+async def inc_number_handler_incorrect(message: Message):
+    await message.answer(text=lexicon["inc_number_incorrect"])
 
 
 @router.callback_query(
