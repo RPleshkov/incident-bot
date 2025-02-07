@@ -66,7 +66,6 @@ async def get_incedents(session, first_date_excel, last_date_excel):
             Incident.inc_child_number,
             Incident.description,
             Incident.resolution,
-            Incident.sti_res,
         )
         .where(between(Incident.time, first_date_excel, last_date_excel))
         .order_by(Incident.time)

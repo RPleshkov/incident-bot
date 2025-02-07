@@ -5,10 +5,7 @@ from openpyxl import Workbook
 from openpyxl.styles import Alignment, Border, Font, NamedStyle, PatternFill, Side
 
 
-def create_excel(
-    tuple_list: list, output_filename: str, sheet_name="Sheet1"
-):
-    # Создаем директорию, если она не существует
+def create_excel(tuple_list: list, output_filename: str, sheet_name="Sheet1"):
 
     filepath = os.path.join("services/tmp", output_filename)
 
@@ -24,7 +21,6 @@ def create_excel(
         "Дочерняя заявка",
         "Краткое описание проблемы",
         "Решение",
-        "Решено СТИ",
     ]
 
     # Записываем данные из списка словарей в Excel
@@ -36,10 +32,6 @@ def create_excel(
             for col in row:
                 if type(col) is datetime:
                     columns.append(str(col))
-                elif col is True:
-                    columns.append("Да")
-                elif col is False:
-                    columns.append("Нет")
                 else:
                     columns.append(col)
             ws.append(columns)
@@ -60,7 +52,7 @@ def create_excel(
     header_style.border = border_style
 
     cell_style = NamedStyle(name="cell")
-    cell_style.alignment = Alignment(horizontal="left", vertical="center")
+    cell_style.alignment = Alignment(horizontal="center", vertical="center")
     cell_style.border = border_style
 
     for cell in ws[1]:  # Применяем стиль к заголовкам

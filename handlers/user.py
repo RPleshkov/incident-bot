@@ -5,6 +5,7 @@ from aiogram.filters import Command, CommandStart, StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import default_state
 from aiogram.types import CallbackQuery, Message
+from aiogram_dialog import DialogManager, StartMode
 from sqlalchemy.ext.asyncio import AsyncSession
 from filters.filters import DateTimeFilter, HospNameFilter, IsAdmin
 from keyboards.keyboards import *
@@ -15,8 +16,6 @@ from database import requests as rq
 
 router = Router(name="user_handlers_router")
 logger = logging.getLogger(__name__)
-
-
 
 
 @router.message(CommandStart(), StateFilter(default_state))
@@ -38,13 +37,12 @@ async def cmd_cancel_process(message: Message, state: FSMContext):
 
 
 @router.message(Command("admin"), ~StateFilter(FSMFillIncident), IsAdmin())
-async def cmd_admin_process_correct(message: Message, state: FSMContext):
-    await message.answer(text=lexicon["admin_correct"], reply_markup=admin_menu())
-    await state.set_state(FSMAdmin.admin_mode)
+async def cmd_admin_process_correct(message: Message, dialog_manager: DialogManager):
+    await dialog_manager.start(state=FSMAdmin.main_menu, mode=StartMode.RESET_STACK)
 
 
 @router.message(Command("admin"), IsAdmin())
-async def cmd_admin_process_incorrect(message: Message, state: FSMContext):
+async def cmd_admin_process_incorrect(message: Message):
     await message.answer(text=lexicon["admin_incorrect"])
 
 
@@ -120,7 +118,7 @@ async def inc_child_number_handler_correct(message: Message, state: FSMContext):
 
 
 @router.message(StateFilter(FSMFillIncident.inc_child_number))
-async def inc_number_handler_incorrect(message: Message):
+async def inc_child_number_handler_incorrect(message: Message):
     await message.answer(text=lexicon["inc_number_incorrect"])
 
 

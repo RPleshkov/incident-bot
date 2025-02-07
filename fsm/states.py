@@ -13,7 +13,7 @@ class FSMFillIncident(StatesGroup):
 
 
 class FSMAdmin(StatesGroup):
-    admin_mode = State()
-
-    first_date_excel = State()
-    last_date_excel = State()
+    main_menu = State()
+    first_date = State()
+    last_date = State()
+    excel_done = State()

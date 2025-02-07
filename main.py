@@ -4,6 +4,8 @@ import logging
 from aiogram import Bot, Dispatcher
 from aiogram.enums import ParseMode
 from aiogram.client.default import DefaultBotProperties
+from aiogram.fsm.storage.base import DefaultKeyBuilder
+from aiogram_dialog import setup_dialogs
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from aiogram.fsm.storage.redis import RedisStorage
 from redis.asyncio import Redis
@@ -27,7 +29,9 @@ async def main():
         config.tg_bot.token, default=DefaultBotProperties(parse_mode=ParseMode.HTML)
     )
     redis = Redis(host=config.redis_host, port=config.redis_port)
-    storage = RedisStorage(redis=redis)
+    storage = RedisStorage(
+        redis=redis, key_builder=DefaultKeyBuilder(with_destiny=True)
+    )
 
     dp = Dispatcher(storage=storage)
     dp.workflow_data.update(admin_ids=config.admin_ids)
@@ -38,8 +42,9 @@ async def main():
     Sessionmaker = async_sessionmaker(engine, expire_on_commit=False)
     dp.update.outer_middleware(DbSessionMiddleware(Sessionmaker))
 
-    dp.include_router(admin.router)
+    dp.include_router(admin.admin_dialog)
     dp.include_router(user.router)
+    setup_dialogs(dp)
 
     await dp.start_polling(bot)
 
