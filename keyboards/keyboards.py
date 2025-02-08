@@ -1,3 +1,4 @@
+from datetime import datetime
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
 
@@ -5,6 +6,12 @@ def add_incident() -> InlineKeyboardMarkup:
     button = InlineKeyboardButton(
         text="Зафиксировать инцидент", callback_data="add_incident"
     )
+    return InlineKeyboardMarkup(inline_keyboard=[[button]])
+
+
+def current_time_kb(current_time) -> InlineKeyboardMarkup:
+    
+    button = InlineKeyboardButton(text=current_time, callback_data="current_time_btn")
     return InlineKeyboardMarkup(inline_keyboard=[[button]])
 
 

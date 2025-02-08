@@ -63,7 +63,7 @@ async def start_add_incident(
     await state.update_data(current_time=current_time)
     if callback.message:
         await callback.message.answer(
-            text=i18n.add_incident(current_time=current_time)
+            text=i18n.add_incident(), reply_markup=current_time_kb(current_time)
         )
         await state.set_state(FSMFillIncident.time)
 
@@ -80,13 +80,19 @@ async def time_handler_correct(
     await state.set_state(FSMFillIncident.hosp_name)
 
 
-@router.message(StateFilter(FSMFillIncident.time))
-async def time_handler_incorrect(
-    message: Message, i18n: TranslatorRunner, state: FSMContext
+@router.callback_query(StateFilter(FSMFillIncident.time), F.data == "current_time_btn")
+async def current_time_btn_process(
+    callback: CallbackQuery, state: FSMContext, i18n: TranslatorRunner
 ):
-    await message.answer(
-        text=i18n.incorrect_time(current_time=await state.get_value("current_time"))
-    )
+    await callback.answer()
+    await state.update_data(time=await state.get_value("current_time"))
+    await callback.message.answer(text=i18n.hosp_name())
+    await state.set_state(FSMFillIncident.hosp_name)
+
+
+@router.message(StateFilter(FSMFillIncident.time))
+async def time_handler_incorrect(message: Message, i18n: TranslatorRunner):
+    await message.answer(text=i18n.incorrect_time())
 
 
 @router.message(StateFilter(FSMFillIncident.hosp_name), HospNameFilter())
