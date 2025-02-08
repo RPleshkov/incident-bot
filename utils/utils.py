@@ -1,5 +1,4 @@
-import datetime
-
+from datetime import datetime
 
 def confirm_form(data: dict):
 
@@ -10,7 +9,7 @@ def confirm_form(data: dict):
 
     form = (
         f"<b>Проверь корректность заполненных данных</b>:\n\n"
-        + f"<b>Дата/Время</b>: {eval(data['time'])}\n"
+        + f"<b>Дата/Время</b>: {data['time']}\n"
         + f"<b>МО</b>: {data['hosp_name']}\n"
         + f"<b>Решено СТИ</b>: {res}\n"
         + f"<b>Номер заявки</b>: {data['inc_number']}\n"
@@ -23,9 +22,8 @@ def confirm_form(data: dict):
 
 
 def get_output_filename(
-    first_date,
-    last_date,
+    first_date: str,
+    last_date: str,
 ) -> str:
-    first_date = datetime.datetime.strftime(eval(first_date), "%d.%m")
-    last_date = datetime.datetime.strftime(eval(last_date), "%d.%m.%Y")
+    print(first_date, last_date)
     return f"Массовые инциденты {first_date}-{last_date}.xlsx"

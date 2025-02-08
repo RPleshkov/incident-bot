@@ -1,5 +1,5 @@
 import logging
-import datetime
+from datetime import datetime
 from aiogram import Router, F
 from aiogram.filters import Command, CommandStart, StateFilter
 from aiogram.fsm.context import FSMContext
@@ -20,12 +20,13 @@ logger = logging.getLogger(__name__)
 
 @router.message(CommandStart(), StateFilter(default_state))
 async def cmd_start_process(message: Message, session: AsyncSession):
-    await rq.upsert_user(
-        session,
-        message.from_user.id,
-        message.from_user.first_name,
-        message.from_user.last_name,
-    )
+    if message.from_user:
+        await rq.upsert_user(
+            session,
+            message.from_user.id,
+            message.from_user.first_name,
+            message.from_user.last_name,
+        )
     await message.answer(text=lexicon["/start"], reply_markup=add_incident())
 
 
@@ -49,8 +50,9 @@ async def cmd_admin_process_incorrect(message: Message):
 @router.callback_query(StateFilter(default_state), F.data == "add_incident")
 async def start_add_incident(callback: CallbackQuery, state: FSMContext):
     await callback.answer()
-    await callback.message.answer(text=lexicon["add_incident"])
-    await state.set_state(FSMFillIncident.time)
+    if callback.message:
+        await callback.message.answer(text=lexicon["add_incident"])
+        await state.set_state(FSMFillIncident.time)
 
 
 @router.message(
@@ -101,10 +103,10 @@ async def inc_number_handler_incorrect(message: Message):
 )
 async def sti_res_handler_yes(callback: CallbackQuery, state: FSMContext):
     await callback.answer()
-
     await state.update_data(sti_res=True)
-    await callback.message.answer(text=lexicon["inc_child_number"])
-    await state.set_state(FSMFillIncident.inc_child_number)
+    if callback.message:
+        await callback.message.answer(text=lexicon["inc_child_number"])
+        await state.set_state(FSMFillIncident.inc_child_number)
 
 
 @router.message(
@@ -129,8 +131,9 @@ async def inc_child_number_handler_incorrect(message: Message):
 async def sti_res_handler_no(callback: CallbackQuery, state: FSMContext):
     await callback.answer()
     await state.update_data(sti_res=False, inc_child_number=None)
-    await callback.message.answer(text=lexicon["description"])
-    await state.set_state(FSMFillIncident.description)
+    if callback.message:
+        await callback.message.answer(text=lexicon["description"])
+        await state.set_state(FSMFillIncident.description)
 
 
 @router.message(StateFilter(FSMFillIncident.description), F.text)
@@ -154,9 +157,10 @@ async def resolution_handler(message: Message, state: FSMContext):
 )
 async def refil_btn_process(callback: CallbackQuery, state: FSMContext):
     await callback.answer()
-    await callback.message.answer(text=lexicon["add_incident"])
-    await state.clear()
-    await state.set_state(FSMFillIncident.time)
+    if callback.message:
+        await callback.message.answer(text=lexicon["add_incident"])
+        await state.clear()
+        await state.set_state(FSMFillIncident.time)
 
 
 @router.callback_query(
@@ -169,7 +173,7 @@ async def confirm_btn_process(
     data = await state.get_data()
     await rq.set_incident(
         session=session,
-        time=eval(data["time"]),
+        time=datetime.strptime(data["time"], "%d.%m.%Y %H:%M:%S"),
         hosp_name=data["hosp_name"],
         inc_number=data["inc_number"],
         inc_child_number=data["inc_child_number"],
@@ -178,6 +182,7 @@ async def confirm_btn_process(
         sti_res=data["sti_res"],
         creator=callback.from_user.id,
     )
-    await callback.message.answer(text=lexicon["confirm_pressed"])
-    await callback.message.answer(text=lexicon["new"], reply_markup=add_incident())
-    await state.clear()
+    if callback.message:
+        await callback.message.answer(text=lexicon["confirm_pressed"])
+        await callback.message.answer(text=lexicon["new"], reply_markup=add_incident())
+        await state.clear()

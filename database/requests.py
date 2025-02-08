@@ -56,7 +56,7 @@ async def set_incident(
     await session.commit()
 
 
-async def get_incedents(session, first_date_excel, last_date_excel):
+async def get_incedents(first_date_excel, last_date_excel, session):
 
     stmt = (
         select(

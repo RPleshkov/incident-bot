@@ -3,7 +3,7 @@ import logging
 import os
 from aiogram.types import CallbackQuery, FSInputFile
 from aiogram_dialog import Dialog, DialogManager, StartMode, Window
-from aiogram_dialog.widgets.kbd import Back, Button, Calendar
+from aiogram_dialog.widgets.kbd import Back, Button, Calendar, Next
 from aiogram_dialog.widgets.text import Const, Format, Multi
 from sqlalchemy.ext.asyncio import AsyncSession
 from fsm.states import FSMAdmin
@@ -16,12 +16,6 @@ from utils.utils import get_output_filename
 
 
 logger = logging.getLogger(__name__)
-
-
-async def on_calendar_page(
-    callback: CallbackQuery, button: Button, dialog_manager: DialogManager
-):
-    await dialog_manager.next()
 
 
 async def logout_from_admin(
@@ -78,20 +72,20 @@ async def download_excel(
     button: Button,
     dialog_manager: DialogManager,
 ):
-    dates = {"first_date_excel": None, "last_date_excel": None}
-    for key in dates:
-        tmp = dialog_manager.dialog_data.get(key)
-        dates[key] = datetime.strptime(tmp, "%d.%m.%Y")
+    first_date_excel = dialog_manager.dialog_data.get("first_date_excel")
+    last_date_excel = dialog_manager.dialog_data.get("last_date_excel")
+
+    dates = (
+        datetime.strptime(d, "%d.%m.%Y") for d in [first_date_excel, last_date_excel]
+    )
 
     session = dialog_manager.middleware_data.get("session")
     result = await rq.get_incedents(
+        *dates,
         session=session,
-        first_date_excel=dates["first_date_excel"],
-        last_date_excel=dates["last_date_excel"],
     )
-    output_filename = get_output_filename(
-        repr(dates["first_date_excel"]), repr(dates["last_date_excel"])
-    )
+    output_filename = get_output_filename(first_date_excel, last_date_excel)
+
     file_path = create_excel(result, output_filename)
     await callback.message.answer_document(
         FSInputFile(file_path), caption="Отчет выгружен!"
@@ -114,11 +108,7 @@ async def selection_getter(dialog_manager: DialogManager, **_):
 admin_dialog = Dialog(
     Window(
         Const(admin_menu_lexicon["admin_correct"]),
-        Button(
-            text=Const("Выгрузить Excel"),
-            id="get_excel_button",
-            on_click=on_calendar_page,
-        ),
+        Next(text=Const("Выгрузить Excel"), id="on_calendar_page"),
         Button(text=Const("Выйти"), id="quit_button", on_click=logout_from_admin),
         state=FSMAdmin.main_menu,
     ),

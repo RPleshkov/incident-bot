@@ -24,12 +24,10 @@ class DateTimeFilter(BaseFilter):
 
     async def __call__(self, message: Message) -> dict | None:
         try:
-            return {"time": repr(parse(message.text, dayfirst=True))}
+            time = parse(message.text, dayfirst=True)
+            return {"time": time.strftime("%d.%m.%Y %H:%M:%S")}
         except:
             return None
-
-
-
 
 
 class IsAdmin(BaseFilter):
