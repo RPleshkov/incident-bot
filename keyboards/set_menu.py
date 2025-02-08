@@ -1,6 +1,17 @@
 from aiogram import Bot
 from aiogram.types import BotCommand, BotCommandScopeChat
-from lexicon.lexicon import user_menu, admin_menu
+
+
+user_menu: dict = {
+    "/start": "Перезапустить бота",
+    "/cancel": "Отменить заполнение инцидента",
+}
+
+admin_menu: dict = {
+    "/start": "Перезапустить бота",
+    "/cancel": "Отменить заполнение инцидента",
+    "/admin": "Открыть меню администратора",
+}
 
 
 async def set_user_menu(bot: Bot):

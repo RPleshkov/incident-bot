@@ -1,15 +1,14 @@
 from datetime import date, datetime
 import logging
 import os
-from aiogram.types import CallbackQuery, FSInputFile
+from aiogram.types import CallbackQuery, FSInputFile, User
 from aiogram_dialog import Dialog, DialogManager, StartMode, Window
 from aiogram_dialog.widgets.kbd import Back, Button, Calendar, Next
 from aiogram_dialog.widgets.text import Const, Format, Multi
+from fluentogram import TranslatorRunner
 from sqlalchemy.ext.asyncio import AsyncSession
 from fsm.states import FSMAdmin
 from keyboards.keyboards import add_incident
-from lexicon.lexicon import lexicon
-from lexicon.lexicon import admin_menu_lexicon
 from database import requests as rq
 from services.services import create_excel
 from utils.utils import get_output_filename
@@ -23,9 +22,19 @@ async def logout_from_admin(
     button: Button,
     dialog_manager: DialogManager,
 ):
-    await callback.message.answer("Ты вышел из меню админа.")
-    await callback.message.answer(text=lexicon["new"], reply_markup=add_incident())
+    i18n = dialog_manager.middleware_data.get("i18n")
+    await callback.message.answer(text=i18n.exit.admin())
+    await callback.message.answer(text=i18n.new(), reply_markup=add_incident())
     await dialog_manager.done()
+
+
+async def get_admin_menu_text(
+    dialog_manager: DialogManager,
+    i18n: TranslatorRunner,
+    event_from_user: User,
+    **kwargs,
+) -> dict[str, str]:
+    return {"admin_correct": i18n.admin.correct()}
 
 
 async def first_date_process(
@@ -107,9 +116,10 @@ async def selection_getter(dialog_manager: DialogManager, **_):
 
 admin_dialog = Dialog(
     Window(
-        Const(admin_menu_lexicon["admin_correct"]),
+        Format(text="{admin_correct}"),
         Next(text=Const("Выгрузить Excel"), id="on_calendar_page"),
         Button(text=Const("Выйти"), id="quit_button", on_click=logout_from_admin),
+        getter=get_admin_menu_text,
         state=FSMAdmin.main_menu,
     ),
     Window(

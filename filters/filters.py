@@ -24,7 +24,8 @@ class DateTimeFilter(BaseFilter):
 
     async def __call__(self, message: Message) -> dict | None:
         try:
-            time = parse(message.text.replace("", ""), dayfirst=True)
+            time = parse(fix_message, dayfirst=True)
+
             return {"time": time.strftime("%d.%m.%Y %H:%M:%S")}
         except:
             return None
