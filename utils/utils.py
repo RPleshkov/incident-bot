@@ -1,5 +1,3 @@
-from datetime import datetime
-
 def confirm_form(data: dict):
 
     if data["sti_res"] is True:

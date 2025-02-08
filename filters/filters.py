@@ -24,15 +24,13 @@ class DateTimeFilter(BaseFilter):
 
     async def __call__(self, message: Message) -> dict | None:
         try:
-            time = parse(message.text, dayfirst=True)
+            time = parse(message.text.replace("", ""), dayfirst=True)
             return {"time": time.strftime("%d.%m.%Y %H:%M:%S")}
         except:
             return None
 
 
 class IsAdmin(BaseFilter):
-    # def __init__(self, admin_ids: list[int]) -> None:
-    #     self.admin_ids = admin_ids
 
     async def __call__(self, message: Message, admin_ids) -> bool:
         return message.from_user.id in admin_ids

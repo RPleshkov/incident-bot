@@ -95,8 +95,8 @@ async def download_excel(
 
 
 async def selection_getter(dialog_manager: DialogManager, **_):
-    first_date = dialog_manager.dialog_data.get("first_date_excel", "дата не выбрана")
-    last_date = dialog_manager.dialog_data.get("last_date_excel", "дата не выбрана")
+    first_date = dialog_manager.dialog_data.get("first_date_excel", None)
+    last_date = dialog_manager.dialog_data.get("last_date_excel", None)
     download_status = bool(first_date) and bool(last_date)
     return {
         "first_date_excel": first_date,

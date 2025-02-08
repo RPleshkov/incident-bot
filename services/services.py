@@ -31,7 +31,7 @@ def create_excel(tuple_list: list, output_filename: str, sheet_name="Sheet1"):
             columns = []
             for col in row:
                 if type(col) is datetime:
-                    columns.append(str(col))
+                    columns.append(col.strftime("%d.%m.%Y %H:%M"))
                 else:
                     columns.append(col)
             ws.append(columns)

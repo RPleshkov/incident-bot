@@ -6,13 +6,16 @@ from aiogram.enums import ParseMode
 from aiogram.client.default import DefaultBotProperties
 from aiogram.fsm.storage.base import DefaultKeyBuilder
 from aiogram_dialog import setup_dialogs
+from fluentogram import TranslatorHub
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from aiogram.fsm.storage.redis import RedisStorage
 from redis.asyncio import Redis
 from config.config import Config, load_config
 from handlers import user, admin
 from keyboards.set_menu import set_admin_menu, set_user_menu
+from middlewares.i18n import TranslatorRunnerMiddleware
 from middlewares.session import DbSessionMiddleware
+from utils.i18n import create_translator_hub
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -36,17 +39,21 @@ async def main():
     dp = Dispatcher(storage=storage)
     dp.workflow_data.update(admin_ids=config.admin_ids)
 
+    translator_hub: TranslatorHub = create_translator_hub()
+
     await set_user_menu(bot)
     await set_admin_menu(dp.workflow_data.get("admin_ids"), bot)
 
     Sessionmaker = async_sessionmaker(engine, expire_on_commit=False)
     dp.update.outer_middleware(DbSessionMiddleware(Sessionmaker))
 
+    dp.update.middleware(TranslatorRunnerMiddleware())
+
     dp.include_router(admin.admin_dialog)
     dp.include_router(user.router)
     setup_dialogs(dp)
 
-    await dp.start_polling(bot)
+    await dp.start_polling(bot, _translator_hub=translator_hub)
 
 
 if __name__ == "__main__":
