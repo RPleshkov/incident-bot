@@ -1,5 +1,6 @@
 from datetime import datetime
 import os
+from typing import Any
 
 from openpyxl import Workbook
 from openpyxl.styles import Alignment, Border, Font, NamedStyle, PatternFill, Side
@@ -80,3 +81,9 @@ def create_excel(tuple_list: list, output_filename: str, sheet_name="Sheet1"):
     # Сохраняем файл
     wb.save(filepath)
     return filepath
+
+
+async def mess_cleaner(*args) -> dict[str, Any]:
+    """уничтожитель сервисных сообщений для очистки истории диалога"""
+    mess2ass = {"mess_" + str(i): i for i in args}
+    return mess2ass
