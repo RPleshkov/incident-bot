@@ -11,7 +11,7 @@ from fsm.states import FSMAdmin
 from keyboards.keyboards import add_incident
 from database import requests as rq
 from services.services import create_excel
-from utils.utils import get_output_filename
+from utils.utils import create_text_summary_from_data, get_output_filename
 
 
 logger = logging.getLogger(__name__)
@@ -85,7 +85,8 @@ async def download_excel(
     last_date_excel = dialog_manager.dialog_data.get("last_date_excel")
 
     dates = (
-        datetime.strptime(d, "%d.%m.%Y") for d in [first_date_excel, last_date_excel]
+        datetime.strptime(d, "%d.%m.%Y %H:%M:%S")
+        for d in [first_date_excel + " 00:00:00", last_date_excel + " 12:00:00"]
     )
 
     session = dialog_manager.middleware_data.get("session")
@@ -93,11 +94,13 @@ async def download_excel(
         *dates,
         session=session,
     )
+    data = result.all()
     output_filename = get_output_filename(first_date_excel, last_date_excel)
 
-    file_path = create_excel(result, output_filename)
+    file_path = create_excel(data, output_filename)
     await callback.message.answer_document(
-        FSInputFile(file_path), caption="Отчет выгружен!"
+        FSInputFile(file_path),
+        caption=create_text_summary_from_data(data, first_date_excel, last_date_excel),
     )
     os.remove(file_path)
     await dialog_manager.start(state=FSMAdmin.main_menu, mode=StartMode.RESET_STACK)

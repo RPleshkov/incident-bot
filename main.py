@@ -18,7 +18,14 @@ from middlewares.session import DbSessionMiddleware
 from utils.i18n import create_translator_hub
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(
+    level=logging.WARNING,
+    filename="logging.log",
+    format="[%(asctime)s] #%(levelname)-8s %(filename)s:"
+    "%(lineno)d - %(name)s:%(funcName)s - %(message)s",
+    encoding="utf-8",
+    filemode="w",
+)
 
 
 async def main():
