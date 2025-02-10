@@ -44,5 +44,33 @@ def get_output_filename(
     first_date: str,
     last_date: str,
 ) -> str:
-    print(first_date, last_date)
     return f"Массовые инциденты {first_date}-{last_date}.xlsx"
+
+
+def create_text_summary_from_data(
+    data: list[tuple], first_date: str, last_date: str
+) -> str:
+
+    sti_resolved_hospitals = set()
+    self_resolved_hospitals = set()
+
+    for row in data:
+        if row[3] is None:
+            self_resolved_hospitals.add(row[1])
+        else:
+            sti_resolved_hospitals.add(tuple([row[3], row[1], row[5]]))
+
+    sti_resolved_hospital_strings = [
+        f"<u>{child_inc}</u> - {hosp_name}\n{resolve}\n"
+        for child_inc, hosp_name, resolve in sti_resolved_hospitals
+    ]
+
+    text = (
+        "Доброе утро!\n\n"
+        + f"<b>{first_date}-{last_date}</b>\nБыли рестарты сервисов в следующих МО:\n\n"
+        + f'{"\n".join(self_resolved_hospitals)}\n\n'
+        + "<b>Решено СТИ:</b>\n\n"
+        + f'{"\n".join(sti_resolved_hospital_strings)}'
+    )
+
+    return text
