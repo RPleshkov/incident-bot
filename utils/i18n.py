@@ -13,6 +13,12 @@ def create_translator_hub() -> TranslatorHub:
                     locale="ru-RU", filenames=["locales/ru.ftl"]
                 ),
             ),
+            FluentTranslator(
+                locale="en",
+                translator=FluentBundle.from_files(
+                    locale="en-US", filenames=["locales/ru.ftl"]
+                ),
+            ),
         ],
     )
     return translator_hub
