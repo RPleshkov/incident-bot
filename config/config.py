@@ -29,3 +29,6 @@ def load_config(path: str | None = None):
         redis_port=env("REDIS_PORT"),
         admin_ids=admin_id,
     )
+
+
+print(load_config().tg_bot.token)

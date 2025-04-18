@@ -1,4 +1,5 @@
 import logging
+from aiogram.exceptions import TelegramBadRequest
 from datetime import datetime
 from aiogram import Bot, Router, F
 from aiogram.filters import Command, CommandStart, StateFilter
@@ -272,17 +273,20 @@ async def confirm_btn_process(
         creator=callback.from_user.id,
     )
     if callback.message:
-        await bot.delete_messages(
-            callback.message.chat.id,
-            [v for k, v in data.items() if k.startswith("mess_")],
-        )
-        await callback.message.answer(
-            confirm_form_edited(data),
-        )
-        await state.clear()
-
-        answer = await callback.message.answer(
-            text=i18n.new(), reply_markup=add_incident()
-        )
-        mess2ass = await mess_cleaner(answer.message_id)
-        await state.update_data(mess2ass)
+        try:
+            await bot.delete_messages(
+                callback.message.chat.id,
+                [v for k, v in data.items() if k.startswith('mess_')],
+            )
+        except TelegramBadRequest:
+            pass
+        finally:
+            await callback.message.answer(
+                confirm_form_edited(data),
+            )
+            await state.clear()
+            answer = await callback.message.answer(
+                text=i18n.new(), reply_markup=add_incident()
+            )
+            mess2ass = await mess_cleaner(answer.message_id)
+            await state.update_data(mess2ass)
